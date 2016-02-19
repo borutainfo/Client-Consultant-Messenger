@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>502</width>
-    <height>350</height>
+    <height>380</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,17 +19,17 @@
   <property name="minimumSize">
    <size>
     <width>502</width>
-    <height>350</height>
+    <height>380</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>502</width>
-    <height>350</height>
+    <height>380</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Biuro obsługi klienta</string>
   </property>
   <widget class="QWidget" name="MainWidget">
    <widget class="QTabWidget" name="tabWidget">
@@ -41,7 +41,7 @@
       <x>0</x>
       <y>0</y>
       <width>502</width>
-      <height>350</height>
+      <height>380</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -55,7 +55,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>219</y>
+        <y>250</y>
         <width>480</width>
         <height>41</height>
        </rect>
@@ -71,7 +71,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>269</y>
+        <y>300</y>
         <width>480</width>
         <height>41</height>
        </rect>
@@ -123,7 +123,7 @@ p, li { white-space: pre-wrap; }
         <x>10</x>
         <y>50</y>
         <width>480</width>
-        <height>160</height>
+        <height>191</height>
        </rect>
       </property>
       <property name="font">
@@ -153,7 +153,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>72</y>
+        <y>105</y>
         <width>291</width>
         <height>27</height>
        </rect>
@@ -169,7 +169,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>310</x>
-        <y>72</y>
+        <y>105</y>
         <width>181</width>
         <height>27</height>
        </rect>
@@ -182,7 +182,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>180</x>
-        <y>10</y>
+        <y>40</y>
         <width>311</width>
         <height>27</height>
        </rect>
@@ -192,7 +192,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>13</y>
+        <y>43</y>
         <width>151</width>
         <height>20</height>
        </rect>
@@ -205,7 +205,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>180</x>
-        <y>40</y>
+        <y>70</y>
         <width>311</width>
         <height>27</height>
        </rect>
@@ -240,7 +240,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>45</y>
+        <y>75</y>
         <width>161</width>
         <height>16</height>
        </rect>
@@ -256,7 +256,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>280</y>
+        <y>314</y>
         <width>370</width>
         <height>27</height>
        </rect>
@@ -269,7 +269,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>390</x>
-        <y>280</y>
+        <y>314</y>
         <width>100</width>
         <height>27</height>
        </rect>
@@ -285,7 +285,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>110</y>
+        <y>140</y>
         <width>480</width>
         <height>160</height>
        </rect>
@@ -320,6 +320,45 @@ p, li { white-space: pre-wrap; }
        <set>Qt::NoTextInteraction</set>
       </property>
      </widget>
+     <widget class="QLabel" name="clientAddrLabel">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>12</y>
+        <width>151</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Adres i port serwera:</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="clientServAddrEdit">
+      <property name="geometry">
+       <rect>
+        <x>180</x>
+        <y>10</y>
+        <width>221</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>127.0.0.1</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="clientServPortEdit">
+      <property name="geometry">
+       <rect>
+        <x>410</x>
+        <y>10</y>
+        <width>81</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>6666</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="consultantTab">
      <attribute name="title">
@@ -329,7 +368,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>320</x>
-        <y>10</y>
+        <y>40</y>
         <width>81</width>
         <height>27</height>
        </rect>
@@ -345,7 +384,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>410</x>
-        <y>10</y>
+        <y>40</y>
         <width>81</width>
         <height>27</height>
        </rect>
@@ -358,7 +397,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>100</x>
-        <y>10</y>
+        <y>40</y>
         <width>211</width>
         <height>27</height>
        </rect>
@@ -368,7 +407,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>14</y>
+        <y>44</y>
         <width>81</width>
         <height>17</height>
        </rect>
@@ -384,7 +423,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>40</y>
+        <y>70</y>
         <width>301</width>
         <height>27</height>
        </rect>
@@ -397,7 +436,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>410</x>
-        <y>40</y>
+        <y>70</y>
         <width>81</width>
         <height>27</height>
        </rect>
@@ -413,7 +452,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>320</x>
-        <y>40</y>
+        <y>70</y>
         <width>81</width>
         <height>27</height>
        </rect>
@@ -429,7 +468,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>110</y>
+        <y>140</y>
         <width>480</width>
         <height>160</height>
        </rect>
@@ -453,7 +492,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>390</x>
-        <y>280</y>
+        <y>314</y>
         <width>100</width>
         <height>27</height>
        </rect>
@@ -469,7 +508,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>280</y>
+        <y>314</y>
         <width>370</width>
         <height>27</height>
        </rect>
@@ -482,7 +521,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>74</y>
+        <y>105</y>
         <width>480</width>
         <height>27</height>
        </rect>
@@ -491,6 +530,45 @@ p, li { white-space: pre-wrap; }
        <font>
         <pointsize>11</pointsize>
        </font>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="consultantServPortEdit">
+      <property name="geometry">
+       <rect>
+        <x>410</x>
+        <y>10</y>
+        <width>81</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>6666</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="consultantServAddrEdit">
+      <property name="geometry">
+       <rect>
+        <x>180</x>
+        <y>10</y>
+        <width>221</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>127.0.0.1</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="consultanAddrLabel">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>12</y>
+        <width>151</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Adres i port serwera:</string>
       </property>
      </widget>
     </widget>

@@ -11,9 +11,6 @@
 #include <ctime>
 #include <iostream>
 
-const int server_port = 6666;
-const QString server_ip = "127.0.0.1";
-
 struct user {
     int id;
     QString name;

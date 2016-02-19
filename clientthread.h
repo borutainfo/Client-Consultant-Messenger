@@ -7,7 +7,8 @@ class ClientThread : public QThread {
     Q_OBJECT
 
 public:
-    ClientThread(QString);
+    ClientThread(QString, QString, QString);
+    ~ClientThread();
     void run();
     void stop();
     void send(QString);
@@ -22,13 +23,14 @@ signals:
     void exitTalk();
 
 private:
-    int sock, buf_size = 0, optval = 1;
+    int sock, buf_size = 0, optval = 1, status = 0;
     char buf[2048];
     bool talk = false;
     struct sockaddr_in server, client, consultant;
-    struct hostent* ip_addr = gethostbyname(server_ip.toUtf8());
+    struct hostent* ip_addr;
+    struct hostent he;
     socklen_t size = sizeof(struct sockaddr);
-    QString name = "", id = "";
+    QString name = "", addr = "", port = "", id = "";
 };
 
 #endif // CLIENTTHREAD_H

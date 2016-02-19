@@ -1,5 +1,9 @@
 #include "serverthread.h"
 
+ServerThread::~ServerThread() {
+    ServerThread::stop();
+}
+
 void ServerThread::run() {
 
     memset(&server, 0, sizeof(struct sockaddr));
@@ -37,7 +41,8 @@ void ServerThread::run() {
 
                 addUser(temp);
                 send = QString::number(temp.id);
-                sendto(sock, send.toUtf8(), send.length(), 0, (struct sockaddr*)&temp.addr, sizeof(struct sockaddr));
+                sendto(sock, send.toUtf8(), send.toUtf8().length(), 0, (struct sockaddr*)&temp.addr, sizeof(struct sockaddr));
+                sendInfo();
             }
 
             // użytkownik odłączył się
@@ -45,37 +50,23 @@ void ServerThread::run() {
                 int id = QString::fromUtf8(buf, buf_size).mid(4,buf_size-4).toInt();
                 removeUser(id);
                 emit serverAction("Użytkownik "+users[id].name+" rozłączył się (id "+QString::number(id)+").");
+                sendInfo();
             }
 
             // konsultant prosi o listę klientów
             else if(QString::fromUtf8(buf, 4) == "list") {
-                QString lista = "list";
-                char str[16];
-
-                for(size_t i = 0; i < users.size(); i++ ) {
-                    if(!users[i].type && users[i].active) {
-                        inet_ntop(AF_INET, &(users[i].addr.sin_addr), str, INET_ADDRSTRLEN);
-                        lista += "{" + QString::number(users[i].id) + ";" + QString::fromUtf8(str) + ";" + QString::number(ntohs(users[i].addr.sin_port)) + ";" + users[i].name + "}";
-                    }
-                }
-
-                sendto(sock, lista.toUtf8(), lista.length(), 0, (struct sockaddr*)&temp.addr, sizeof(struct sockaddr));
+                QString lista = getList();
+                sendto(sock, lista.toUtf8(), lista.toUtf8().length(), 0, (struct sockaddr*)&temp.addr, sizeof(struct sockaddr));
             }
 
             // konsultant informuje serwer o wybraniu użytkownika
             else if(QString::fromUtf8(buf, 3) == "got") {
                 int id = QString::fromUtf8(buf, buf_size).mid(3,buf_size-3).toInt();
-                emit serverAction("Klient "+users[id].name+" rozmawia właśnie z konsultantem.");
-                removeUser(id);
+                removeUser(id, true);
+                sendInfo();
             }
         }
     }
-}
-
-void ServerThread::stop() {
-    emit serverStatus(0, 0);
-    close(sock);
-    QThread::quit();
 }
 
 void ServerThread::refreshStatus() {
@@ -94,6 +85,10 @@ int ServerThread::addUser(user temp) {
 }
 
 void ServerThread::removeUser(int id) {
+    removeUser(id, false);
+}
+
+void ServerThread::removeUser(int id, bool status) {
     for(size_t i = 0; i < users.size(); i++) {
         if(users[i].id == id && users[i].active) {
             if(users[i].type) {
@@ -104,8 +99,42 @@ void ServerThread::removeUser(int id) {
                 clients--;
             }
 
+            if(status)
+                emit serverAction("Klient "+users[id].name+" rozmawia właśnie z konsultantem.");
+
             users[i].active = false;
         }
     }
     refreshStatus();
+}
+
+QString ServerThread::getList() {
+    QString lista = "list";
+    char str[16];
+
+    for(size_t i = 0; i < users.size(); i++ ) {
+        if(!users[i].type && users[i].active) {
+            inet_ntop(AF_INET, &(users[i].addr.sin_addr), str, INET_ADDRSTRLEN);
+            lista += "{" + QString::number(users[i].id) + ";" + QString::fromUtf8(str) + ";" + QString::number(ntohs(users[i].addr.sin_port)) + ";" + users[i].name + "}";
+        }
+    }
+
+    return lista;
+}
+
+void ServerThread::sendInfo() {
+    QString lista = getList();
+    for(size_t i = 0; i < users.size(); i++) {
+        if(users[i].type) {
+            sendto(sock, lista.toUtf8(), lista.toUtf8().length(), 0, (struct sockaddr*)&users[i].addr, sizeof(struct sockaddr));
+        }
+    }
+}
+
+void ServerThread::stop() {
+    if(ServerThread::isRunning()) {
+        emit serverStatus(0, 0);
+        close(sock);
+        ServerThread::terminate();
+    }
 }

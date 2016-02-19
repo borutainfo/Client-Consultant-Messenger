@@ -3,6 +3,7 @@
 #include <QThread>
 #include <QtCore>
 
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -12,22 +13,25 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    consultant->stop();
-    client->stop();
-    server->stop();
-
+    delete consultant;
+    delete client;
+    delete server;
     delete ui;
+    QCoreApplication::quit();
+}
+
+void MainWindow::closeEvent (QCloseEvent *event) {
+    if (QMessageBox::question(this, "Zamknięcie aplikacji", "Jesteś pewien, że chcesz wyłączyć aplikację?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+        delete this;
+        event->accept();
+    }
+    else {
+        event->ignore();
+    }
 }
 
 QString MainWindow::getTime() {
-    time_t now = time(0);
-    tm *ltm = localtime(&now);
-    return QString::number(1900 + ltm->tm_year)+"/"+((1 + ltm->tm_mon)<10?QString::number(0):"")+
-            QString::number(1 + ltm->tm_mon)+"/"+((ltm->tm_mday)<10?QString::number(0):"")+
-            QString::number(ltm->tm_mday)+" "+((ltm->tm_hour)<10?QString::number(0):"")+
-            QString::number(ltm->tm_hour)+":"+((ltm->tm_min)<10?QString::number(0):"")+
-            QString::number(ltm->tm_min)+":"+((ltm->tm_sec)<10?QString::number(0):"")+
-            QString::number(ltm->tm_sec);
+    return QDateTime::currentDateTime().toString("yyyy/MM/dd HH:mm:ss");
 }
 
 
@@ -46,6 +50,7 @@ void MainWindow::startServer() {
 
 void MainWindow::stopServer(QString info) {
     ui->serveractionsTextBox->insertHtml("<font style=\"color: grey\">"+getTime()+":</font><font style=\"color: black\"> "+info+"</font><br>");
+    ui->serveractionsTextBox->moveCursor(QTextCursor::End);
     stopServer();
 }
 
@@ -62,6 +67,7 @@ void MainWindow::stopServer() {
 void MainWindow::serverStarted() {
     refreshStatus();
     ui->serveractionsTextBox->insertHtml("<font style=\"color: grey\">"+getTime()+":</font><font style=\"color: black\"> Serwer został poprawnie uruchomiony.</font><br>");
+    ui->serveractionsTextBox->moveCursor(QTextCursor::End);
     ui->tabWidget->removeTab(1);
     ui->tabWidget->removeTab(1);
     ui->startserverButton->setEnabled(0);
@@ -81,6 +87,7 @@ void MainWindow::refreshStatus(int clients, int consultants) {
 
 void MainWindow::newAction(QString info) {
     ui->serveractionsTextBox->insertHtml("<font style=\"color: grey\">"+getTime()+":</font><font style=\"color: black\"> "+info+"</font><br>");
+    ui->serveractionsTextBox->moveCursor(QTextCursor::End);
 }
 
 void MainWindow::on_startserverButton_clicked()
@@ -92,6 +99,7 @@ void MainWindow::on_stopserverButton_clicked()
 {
     stopServer();
     ui->serveractionsTextBox->insertHtml("<font style=\"color: grey\">"+getTime()+":</font><font style=\"color: black\"> Praca serwera została zakończona.</font><br>");
+    ui->serveractionsTextBox->moveCursor(QTextCursor::End);
 }
 
 
@@ -109,11 +117,14 @@ void MainWindow::bokConnect() {
         ui->bokconnectButton->setEnabled(0);
         ui->clientproblemBox->setEnabled(0);
         ui->clientnameEdit->setEnabled(0);
+        ui->clientServAddrEdit->setEnabled(0);
+        ui->clientServPortEdit->setEnabled(0);
         ui->bokdisconnectButton->setEnabled(1);
         ui->bokdisconnectButton->setText("Przerwij");
         ui->clientmessageTextEdit->insertHtml("<b style=\"color: grey\">System:</b><font style=\"color: black\"> Trwa nawiązywanie połączenia z serwerem...</font><br>");
+        ui->clientmessageTextEdit->moveCursor(QTextCursor::End);
 
-        client = new ClientThread(ui->clientnameEdit->text());
+        client = new ClientThread(ui->clientnameEdit->text(), ui->clientServAddrEdit->text(), ui->clientServPortEdit->text());
         connect(client, SIGNAL(newSysMessage(QString)), SLOT(bokSysMessage(QString)));
         connect(client, SIGNAL(newMessage(QString)), SLOT(bokMessage(QString)));
         connect(client, SIGNAL(connectError()), SLOT(bokError()));
@@ -131,6 +142,8 @@ void MainWindow::bokDisconnect() {
     ui->bokconnectButton->setEnabled(1);
     ui->bokdisconnectButton->setText("Rozłacz");
     ui->bokdisconnectButton->setEnabled(0);
+    ui->clientServAddrEdit->setEnabled(1);
+    ui->clientServPortEdit->setEnabled(1);
     ui->clientnameEdit->setEnabled(1);
     ui->clientproblemBox->setEnabled(1);
     ui->clientsendButton->setEnabled(0);
@@ -140,10 +153,12 @@ void MainWindow::bokDisconnect() {
 
 void MainWindow::bokMessage(QString message) {
     ui->clientmessageTextEdit->insertHtml("<b style=\"color: grey\">Konsultant:</b><font style=\"color: black\"> "+message+"</font><br>");
+    ui->clientmessageTextEdit->moveCursor(QTextCursor::End);
 }
 
 void MainWindow::bokSysMessage(QString message) {
     ui->clientmessageTextEdit->insertHtml("<b style=\"color: grey\">System:</b><font style=\"color: black\"> "+message+"</font><br>");
+    ui->clientmessageTextEdit->moveCursor(QTextCursor::End);
 }
 
 void MainWindow::bokStart() {
@@ -154,12 +169,14 @@ void MainWindow::bokStart() {
 void MainWindow::bokError() {
     bokDisconnect();
     ui->clientmessageTextEdit->insertHtml("<b style=\"color: grey\">System:</b><font style=\"color: black\"> Nie można nawiązać połączenia z serwerem.</font><br>");
+    ui->clientmessageTextEdit->moveCursor(QTextCursor::End);
 }
 
 void MainWindow::bokSuccess(QString id) {
     ui->bokdisconnectButton->setEnabled(1);
     ui->bokdisconnectButton->setText("Rozłacz");
     ui->clientmessageTextEdit->insertHtml("<b style=\"color: grey\">System:</b><font style=\"color: black\"> Połączono (id "+id+"). Czekaj na przydział konsultanta.</font><br>");
+    ui->clientmessageTextEdit->moveCursor(QTextCursor::End);
 }
 
 void MainWindow::on_bokconnectButton_clicked() {
@@ -169,12 +186,14 @@ void MainWindow::on_bokconnectButton_clicked() {
 void MainWindow::on_bokdisconnectButton_clicked() {
     bokDisconnect();
     ui->clientmessageTextEdit->insertHtml("<b style=\"color: grey\">System:</b><font style=\"color: black\"> Połączenie zostało zakończone.</font><br>");
+    ui->clientmessageTextEdit->moveCursor(QTextCursor::End);
 }
 
 
 void MainWindow::on_clientsendButton_clicked(){
     client->send(ui->clientTextEdit->text());
     ui->clientmessageTextEdit->insertHtml("<b style=\"color: grey\">Ty:</b><font style=\"color: black\"> "+ui->clientTextEdit->text()+"</font><br>");
+    ui->clientmessageTextEdit->moveCursor(QTextCursor::End);
     ui->clientTextEdit->clear();
 }
 
@@ -185,13 +204,20 @@ void MainWindow::on_clientsendButton_clicked(){
 void MainWindow::conConnect() {
     if(ui->consultantnameEdit->text() == "") {
         ui->consultantmessageTextEdit->insertHtml("<b style=\"color: red\">System:</b><font style=\"color: black\"> Wpisz swoje imię!</font><br>");
+        ui->consultantmessageTextEdit->moveCursor(QTextCursor::End);
     }
     else {
         ui->tabWidget->removeTab(0);
         ui->tabWidget->removeTab(0);
+        ui->serverdisconnectButton->setEnabled(1);
+        ui->serverconnectButton->setEnabled(0);
+        ui->consultantServAddrEdit->setEnabled(0);
+        ui->consultantServPortEdit->setEnabled(0);
+        ui->serverdisconnectButton->setText("Przerwij");
         ui->consultantmessageTextEdit->insertHtml("<b style=\"color: grey\">System:</b><font style=\"color: black\"> Trwa nawiązywanie połączenia z serwerem...</font><br>");
+        ui->consultantmessageTextEdit->moveCursor(QTextCursor::End);
 
-        consultant = new ConsultantThread(ui->consultantnameEdit->text());
+        consultant = new ConsultantThread(ui->consultantnameEdit->text(), ui->consultantServAddrEdit->text(), ui->consultantServPortEdit->text());
         connect(consultant, SIGNAL(newMessage(QString)), SLOT(conMessage(QString)));
         connect(consultant, SIGNAL(connectError()), SLOT(conError()));
         connect(consultant, SIGNAL(connectSuccess(QString)), SLOT(conSuccess(QString)));
@@ -207,7 +233,9 @@ void MainWindow::conDisconnect() {
     consultant->stop();
     ui->tabWidget->insertTab(0, ui->serverTab, "Serwer");
     ui->tabWidget->insertTab(1, ui->clientTab, "Klient");
+    ui->serverdisconnectButton->setText("Rozłacz");
     ui->serverconnectButton->setEnabled(1);
+    ui->consultantchooseButton->setText("Wybierz");
     ui->serverdisconnectButton->setEnabled(0);
     ui->consultantnameEdit->setEnabled(1);
     ui->consultantclientchooseBox->setEnabled(0);
@@ -215,19 +243,25 @@ void MainWindow::conDisconnect() {
     ui->consultantchooseButton->setEnabled(0);
     ui->consultantTextBox->setEnabled(0);
     ui->consultantsendButton->setEnabled(0);
+    ui->consultantServAddrEdit->setEnabled(1);
+    ui->consultantServPortEdit->setEnabled(1);
     ui->consultantTextBox->clear();
-    ui->consultantmessageTextEdit->clear();
+    ui->consultantclientdataTextBox->clear();
+    ui->serverdisconnectButton->setText("Rozłącz");
     ui->consultantmessageTextEdit->insertHtml("<b style=\"color: grey\">System:</b><font style=\"color: black\"> Połączenie zostało zakończone.</font><br>");
+    ui->consultantmessageTextEdit->moveCursor(QTextCursor::End);
 }
 
 
 void MainWindow::conMessage(QString message) {
     ui->consultantmessageTextEdit->insertHtml("<b style=\"color: grey\">Klient:</b><font style=\"color: black\"> "+message+"</font><br>");
+    ui->consultantmessageTextEdit->moveCursor(QTextCursor::End);
 }
 
 void MainWindow::conError() {
     conDisconnect();
     ui->consultantmessageTextEdit->insertHtml("<b style=\"color: grey\">System:</b><font style=\"color: black\"> Nie można nawiązać połączenia z serwerem.</font><br>");
+    ui->consultantmessageTextEdit->moveCursor(QTextCursor::End);
 }
 
 void MainWindow::conClient(QString message) {
@@ -241,7 +275,9 @@ void MainWindow::conSuccess(QString id) {
     ui->consultantclientchooseBox->setEnabled(1);
     ui->consultantrefreshButton->setEnabled(1);
     ui->consultantchooseButton->setEnabled(1);
+    ui->serverdisconnectButton->setText("Rozłącz");
     ui->consultantmessageTextEdit->insertHtml("<b style=\"color: grey\">System:</b><font style=\"color: black\"> Połączono (id "+id+"). Wybierz klienta.</font><br>");
+    ui->consultantmessageTextEdit->moveCursor(QTextCursor::End);
 }
 
 void MainWindow::conRefresh(QStringList names) {
@@ -262,16 +298,19 @@ void MainWindow::conRefresh(QStringList names) {
 
 void MainWindow::conTalkStart() {
     ui->consultantmessageTextEdit->insertHtml("<b style=\"color: grey\">System:</b><font style=\"color: black\"> Rozpocząłeś rozmowę z klientem "+ui->consultantclientchooseBox->itemText(ui->consultantclientchooseBox->currentIndex())+".</font><br>");
+    ui->consultantmessageTextEdit->moveCursor(QTextCursor::End);
     ui->consultantclientchooseBox->setEnabled(0);
     ui->consultantrefreshButton->setEnabled(0);
     ui->consultantTextBox->setEnabled(1);
     ui->consultantsendButton->setEnabled(1);
+    ui->consultantchooseButton->setEnabled(1);
     ui->consultantchooseButton->setText("Zakończ");
     consultant->chooseClient(ui->consultantclientchooseBox->currentIndex());
 }
 
 void MainWindow::conTalkClose() {
     ui->consultantmessageTextEdit->insertHtml("<b style=\"color: grey\">System:</b><font style=\"color: black\"> Rozmowa została zakończona.</font><br>");
+    ui->consultantmessageTextEdit->moveCursor(QTextCursor::End);
     ui->consultantclientdataTextBox->clear();
     ui->consultantTextBox->setEnabled(0);
     ui->consultantsendButton->setEnabled(0);
@@ -305,5 +344,6 @@ void MainWindow::on_consultantchooseButton_clicked() {
 void MainWindow::on_consultantsendButton_clicked() {
     consultant->send(ui->consultantTextBox->text());
     ui->consultantmessageTextEdit->insertHtml("<b style=\"color: grey\">Ty:</b><font style=\"color: black\"> "+ui->consultantTextBox->text()+"</font><br>");
+    ui->consultantmessageTextEdit->moveCursor(QTextCursor::End);
     ui->consultantTextBox->clear();
 }

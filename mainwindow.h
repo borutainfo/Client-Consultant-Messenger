@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QMessageBox>
+#include <QCloseEvent>
 #include <serverthread.h>
 #include <clientthread.h>
 #include <consultantthread.h>
@@ -21,6 +22,7 @@ public:
     ~MainWindow();
 
 private slots:
+    void closeEvent(QCloseEvent*);
     void on_startserverButton_clicked();
     void on_bokconnectButton_clicked();
     void on_serverconnectButton_clicked();
